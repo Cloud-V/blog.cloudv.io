@@ -10,6 +10,12 @@ sudo gem install jekyll bundler
 ```
 
 ## Running
+### Locally
+```sh
+bundle exec jekyll serve
+```
+
+### Bundling
 ```sh
 bundle exec jekyll build
 ```
