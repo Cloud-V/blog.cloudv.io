@@ -20,5 +20,7 @@ jobs:
       run: bundle install
     - name: Build static site
       run: bundle exec jekyll build
-    - name: Deploy static site to S3 bucket
+    - name: Deploy static site to Amazon S3 bucket
       run: aws s3 sync ./_site s3://cloudv-blog/ --delete
+    - name: Send AWS CloudFront invalidation
+      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
