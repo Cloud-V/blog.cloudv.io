@@ -24,7 +24,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   The Digital Design Platform Anybody Can Use
 baseurl: "/" # the subpath of your site, e.g. /blog
 url: "blog.cloudv.io" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: CloudV_IDE
+twitter_username: Cloud_V_ISE
 github_username:  Cloud-V
 
 collections:
