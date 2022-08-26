@@ -1,26 +1,48 @@
 name: CI
+
 on: [push]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: "Build"
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-ruby@v1
-      with:
-        ruby-version: '2.6'
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-central-1
-    - name: Update bundler
-      run: gem install bundler:2.1.4
-    - name: Install dependencies
-      run: bundle install
-    - name: Build static site
-      run: bundle exec jekyll build
-    - name: Deploy static site to Amazon S3 bucket
-      run: aws s3 sync ./_site s3://cloudv-blog/ --delete
-    - name: Send AWS CloudFront invalidation
-      run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
+      - uses: actions/checkout@v1
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: "2.6"
+      - name: Update bundler
+        run: gem install bundler:2.1.4
+      - name: Install dependencies
+        run: bundle install
+      - name: Build static site
+        run: bundle exec jekyll build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: "./_site"
+  deploy:
+    name: "Deploy"
+    runs-on: ubuntu-20.04
+    needs: [build]
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
